@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FionzyGPT Grabber ⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+        
+        .header p {
+            color: #0fa;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #0f0;
+            color: #000;
+            padding: 5px 15px;
+            margin: 10px 5px;
+            font-weight: bold;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .badge-red {
+            background: #f00;
+            color: #fff;
+        }
+        
+        .badge-yellow {
+            background: #ff0;
+            color: #000;
+        }
+        
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .url-input {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 12px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .url-input:focus {
+            border-color: #0fa;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .btn {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0a0;
+            box-shadow: 0 0 15px #0f0;
+            transform: scale(1.02);
+        }
+        
+        .btn-danger {
+            background: #f00;
+            color: #fff;
+        }
+        
+        .btn-danger:hover {
+            background: #c00;
+            box-shadow: 0 0 15px #f00;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #0f0;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #000;
+            border: 1px solid #0f0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .tab:hover {
+            background: #111;
+        }
+        
+        .tab.active {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            min-height: 500px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        #resultFrame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #0f0;
+            background: #fff;
+        }
+        
+        .editor {
+            width: 100%;
+            height: 500px;
+            background: #0a0a0a;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #0f0;
+            resize: vertical;
+        }
+        
+        .editor:focus {
+            outline: none;
+            border-color: #0fa;
+        }
+        
+        .info-panel {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #0f0;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .info-label {
+            color: #0fa;
+            font-weight: bold;
+        }
+        
+        .info-value {
+            color: #0f0;
+        }
+        
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #0f0;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            border-left: 2px solid #0f0;
+            padding-left: 10px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #0f0;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⚡ FIONZYGPT GRABBER ⚡</h1>
+        <p>Cloudflare Worker Edition | Bypass CORS | Anti-Protection</p>
+        <div>
+            <div class="badge">🔓 CORS BYPASS: ACTIVE</div>
+            <div class="badge">🛡️ ANTI-BLOCK: ON</div>
+            <div class="badge-red blink">⚡ CLOUDFLARE EDGE</div>
+        </div>
+    </div>
+    
+    <div class="control-panel">
+        <input type="text" id="targetUrl" class="url-input" placeholder="https://example.com" value="https://example.com">
+        <button class="btn" onclick="grabWebsite()">🚀 GRAB WEBSITE</button>
+        <button class="btn" onclick="downloadHTML()">💾 DOWNLOAD HTML</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ CLEAR ALL</button>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('viewer')">📺 LIVE VIEWER</div>
+        <div class="tab" onclick="switchTab('source')">📄 SOURCE CODE</div>
+        <div class="tab" onclick="switchTab('info')">ℹ️ INFO</div>
+    </div>
+    
+    <div id="viewer" class="tab-content active">
+        <iframe id="resultFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation"></iframe>
+    </div>
+    
+    <div id="source" class="tab-content">
+        <textarea id="sourceEditor" class="editor" placeholder="Source code hasil grab akan muncul di sini...&#10;&#10;Klik GRAB WEBSITE untuk memulai..."></textarea>
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+            <button class="btn" onclick="copySource()">📋 COPY SOURCE</button>
+            <button class="btn" onclick="selectAllSource()">📌 SELECT ALL</button>
+        </div>
+    </div>
+    
+    <div id="info" class="tab-content">
+        <div class="info-panel">
+            <div class="info-item">
+                <span class="info-label">📊 Status:</span>
+                <span class="info-value" id="infoStatus">Ready</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📦 Size:</span>
+                <span class="info-value" id="infoSize">0 KB</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🔗 URL:</span>
+                <span class="info-value" id="infoUrl">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🛡️ Protection:</span>
+                <span class="info-value" id="infoProtection">-</span>
+            </div>
+        </div>
+        
+        <div class="info-panel" style="margin-top: 10px;">
+            <h3 style="color:#0f0; margin-bottom:10px;">📌 Cara Penggunaan</h3>
+            <p style="color:#0fa; margin-bottom:5px;">1. Masukkan URL website yang ingin di-grab</p>
+            <p style="color:#0fa; margin-bottom:5px;">2. Klik GRAB WEBSITE</p>
+            <p style="color:#0fa; margin-bottom:5px;">3. Tunggu proses grab selesai</p>
+            <p style="color:#0fa; margin-bottom:5px;">4. Lihat hasil di tab LIVE VIEWER atau SOURCE CODE</p>
+            <p style="color:#0fa;">5. Klik DOWNLOAD HTML untuk menyimpan</p>
+        </div>
+        
+        <div class="info-panel" style="margin-top: 10px;">
+            <h3 style="color:#0f0; margin-bottom:10px;">⚠️ Catatan</h3>
+            <p style="color:#ff0; margin-bottom:5px;">• Website pake Cloudflare protection mungkin gagal di-grab</p>
+            <p style="color:#ff0; margin-bottom:5px;">• Website pake JS encryption ringan masih bisa di-bypass</p>
+            <p style="color:#ff0;">• Hasil grab adalah HTML statis, JS dinamis mungkin tidak berjalan sempurna</p>
+        </div>
+    </div>
+    
+    <div class="log" id="logPanel">
+        <div class="log-entry">[SYSTEM] FionzyGPT Grabber Active ⚡</div>
+        <div class="log-entry">[SYSTEM] Cloudflare Worker Mode: ON</div>
+        <div class="log-entry">[SYSTEM] Siap grab website apapun!</div>
+    </div>
+</div>
+
+<script>
+    let currentHTML = '';
+    let currentUrl = '';
+    let currentProtection = '';
+    
+    function addLog(message, type = 'info') {
+        const logPanel = document.getElementById('logPanel');
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        
+        if (type === 'error') logEntry.style.color = '#f00';
+        else if (type === 'warning') logEntry.style.color = '#ff0';
+        else logEntry.style.color = '#0f0';
+        
+        logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logPanel.appendChild(logEntry);
+        logPanel.scrollTop = logPanel.scrollHeight;
+        
+        // Limit log to 100 entries
+        while (logPanel.children.length > 100) {
+            logPanel.removeChild(logPanel.children[0]);
+        }
+    }
+    
+    async function grabWebsite() {
+        const url = document.getElementById('targetUrl').value.trim();
+        
+        if (!url) {
+            addLog('URL kosong! Isi dulu target URL-nya!', 'error');
+            return;
+        }
+        
+        addLog(`🔥 Start grabbing: ${url}`);
+        updateInfo('Grabbing...', '0 KB', url, 'Checking...');
+        
+        // Show loading
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading';
+        loadingDiv.style.margin = '10px auto';
+        document.getElementById('logPanel').appendChild(loadingDiv);
+        
+        try {
+            const response = await fetch(`/api/grab?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                currentHTML = data.html;
+                currentUrl = data.url;
+                
+                // Update protection info
+                if (data.blocked) {
+                    currentProtection = '⚠️ Cloudflare Protection Detected';
+                } else if (data.protection?.jsProtection) {
+                    currentProtection = '🔒 JS Protection (Bypassed)';
+                } else {
+                    currentProtection = '✅ No Protection';
+                }
+                
+                // Update source editor
+                document.getElementById('sourceEditor').value = currentHTML;
+                
+                // Load ke iframe
+                const iframe = document.getElementById('resultFrame');
+                const iframeDoc = iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(currentHTML);
+                iframeDoc.close();
+                
+                // Update info panel
+                const sizeKB = (data.size / 1024).toFixed(2);
+                updateInfo('✅ Success', `${sizeKB} KB`, data.url, currentProtection);
+                
+                addLog(`✅ Grab berhasil! Size: ${sizeKB} KB`);
+                
+                if (data.blocked) {
+                    addLog(`⚠️ Website pake Cloudflare protection! Hasil grab mungkin tidak lengkap.`, 'warning');
+                }
+                
+                if (data.protection?.jsProtection) {
+                    addLog(`🔓 JS protection detected, bypass helper injected!`, 'warning');
+                }
+                
+            } else {
+                addLog(`❌ Grab gagal: ${data.error}`, 'error');
+                updateInfo('❌ Failed', '0 KB', url, 'Error');
+            }
+            
+        } catch (error) {
+            addLog(`❌ Error: ${error.message}`, 'error');
+            updateInfo('❌ Error', '0 KB', url, error.message);
+        } finally {
+            loadingDiv.remove();
+        }
+    }
+    
+    function updateInfo(status, size, url, protection) {
+        document.getElementById('infoStatus').innerHTML = status;
+        document.getElementById('infoSize').innerHTML = size;
+        document.getElementById('infoUrl').innerHTML = url.length > 50 ? url.substring(0, 50) + '...' : url;
+        document.getElementById('infoProtection').innerHTML = protection;
+    }
+    
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        document.getElementById(tabName).classList.add('active');
+        
+        const tabs = document.querySelectorAll('.tab');
+        const tabMap = { 'viewer': 0, 'source': 1, 'info': 2 };
+        if (tabMap[tabName] !== undefined) {
+            tabs[tabMap[tabName]].classList.add('active');
+        }
+    }
+    
+    function copySource() {
+        const source = document.getElementById('sourceEditor').value;
+        if (!source || source.includes('Klik GRAB WEBSITE')) {
+            addLog('⚠️ Tidak ada source! Grab dulu website-nya!', 'warning');
+            return;
+        }
+        
+        navigator.clipboard.writeText(source).then(() => {
+            addLog(`📋 Source code berhasil di-copy! (${(source.length / 1024).toFixed(2)} KB)`);
+        }).catch(() => {
+            addLog('❌ Gagal copy ke clipboard!', 'error');
+        });
+    }
+    
+    function selectAllSource() {
+        const textarea = document.getElementById('sourceEditor');
+        textarea.select();
+        addLog('📌 Semua source code terpilih');
+    }
+    
+    function downloadHTML() {
+        if (!currentHTML) {
+            addLog('⚠️ Tidak ada HTML! Grab dulu website-nya!', 'warning');
+            return;
+        }
+        
+        const blob = new Blob([currentHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `grabbed_${Date.now()}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+        addLog(`💾 HTML berhasil di-download! (${(currentHTML.length / 1024).toFixed(2)} KB)`);
+    }
+    
+    function clearAll() {
+        document.getElementById('targetUrl').value = '';
+        document.getElementById('sourceEditor').value = '';
+        document.getElementById('resultFrame').src = 'about:blank';
+        currentHTML = '';
+        currentUrl = '';
+        updateInfo('Ready', '0 KB', '-', '-');
+        addLog(`🗑️ Semua data sudah dibersihkan!`);
+    }
+    
+    // Enter key support
+    document.getElementById('targetUrl').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            grabWebsite();
+        }
+    });
+    
+    // Check health on load
+    async function checkHealth() {
+        try {
+            const response = await fetch('/api/health');
+            const data = await response.json();
+            addLog(`💚 System: ${data.status} | Version: ${data.version}`);
+        } catch (e) {
+            addLog(`⚠️ Health check failed: ${e.message}`, 'warning');
+        }
+    }
+    
+    // Init
+    addLog(`⚡ FionzyGPT Grabber siap tempur!`);
+    addLog(`📌 Masukkan URL dan klik GRAB WEBSITE`);
+    addLog(`🎯 Support bypass CORS & JS protection ringan`);
+    checkHealth();
+</script>
+</body>
+</html>
